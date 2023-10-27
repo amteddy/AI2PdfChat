@@ -1,0 +1,31 @@
+﻿@code {
+    @inject ChatService ChatService
+    private List<ChatMessage> chatHistory;
+
+    protected override void OnInitialized()
+    {
+        chatHistory = ChatService.GetChatHistory();
+        ChatService.OnMessageSent += UpdateChatHistory;
+    }
+
+    private async void UpdateChatHistory()
+    {
+        chatHistory = ChatService.GetChatHistory();
+        await
+        InvokeAsync(StateHasChanged); //trigger component re-render and use invoke async to be called in UI thread
+    }
+}
+
+<div>
+    @foreach (var message in chatHistory)
+    {
+        <div class="@GetMessageClass(message.Type)">@message.Message</div>
+    }
+</div>
+
+@code {
+    private string GetMessageClass(ChatMessage.ChatMessageType type)
+    {
+        return type == ChatMessage.ChatMessageType.User ? "user-message" : "assistant-message";
+    }
+}

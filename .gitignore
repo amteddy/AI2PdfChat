@@ -1,32 +1,125 @@
-# Prerequisites
-*.d
+# Ignore Visual Studio files
+.vscode/
+.vs/
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
+# Ignore build output
+/bin/
+/obj/
+/wwwroot/bin/
+/wwwroot/obj/
 
-# Precompiled Headers
-*.gch
-*.pch
+# Ignore user-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+/vector_store/
+/sample_pdfs/
 
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
+# Ignore NuGet package directory
+packages/
 
-# Fortran module files
-*.mod
-*.smod
+# Ignore the project user-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
 
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
+# Ignore .NET Core artifacts
+project.lock.json
+project.fragment.lock.json
+artifacts/
 
-# Executables
-*.exe
-*.out
-*.app
+# Ignore Visual Studio Code folders
+.vscode/
+
+# Ignore .NET SDF file
+*.sdf
+
+# Ignore logs
+*.log
+
+# Ignore local database file
+*.mdf
+
+# Ignore the node_modules folder
+node_modules/
+
+# Ignore the .vscode folder
+.vscode/
+
+# Ignore npm debug log
+npm-debug.log
+
+# Ignore yarn debug log
+yarn-debug.log*
+yarn-error.log*
+
+# Ignore Visual Studio Code directories
+.vscode/
+.idea/
+
+# Ignore Rider directories
+.idea/
+
+# Ignore cache and logs for JetBrains-based IDEs
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Ignore Rider, Visual Studio, and VS Code folders
+.idea/
+.vscode/
+.vs/
+bin/
+obj/
+backup*/
+[Bb]in/
+[Oo]bj/
+/[Dd]ebug*/
+/[Rr]elease*/
+.vs2019/
+.vs2017/
+.vscode/
+.vscode-test/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.sln.docstates.suo
+
+# Ignore Rider, Visual Studio, and VS Code files
+.idea/
+.vscode/
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.sln.docstates.suo
+
+# Ignore Rider, Visual Studio, and VS Code directories
+.idea/
+.vscode/
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.sln.docstates.suo
+
+# Ignore Mac and Windows file system files
+.DS_Store
+Thumbs.db
+
+# Ignore Visual Studio caching
+.vscode/
+.vs2017/
+.vs2019/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates

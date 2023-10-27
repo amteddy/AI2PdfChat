@@ -1,0 +1,21 @@
+﻿<h2>Enter your question </h2>
+@code {
+    private string userInput;
+
+    @inject ChatService ChatService
+
+    private void SendMessage()
+    {
+        if (!string.IsNullOrWhiteSpace(userInput))
+        {
+            ChatService.SendMessage(userInput);
+            userInput = string.Empty;
+
+        }
+    }
+}
+
+<div>
+    <textarea @bind="userInput"></textarea>
+    <button @onclick="SendMessage">Send</button>
+</div>
