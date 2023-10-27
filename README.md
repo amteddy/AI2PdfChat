@@ -1,22 +1,22 @@
-#AI2PdfChat
+# AI2PdfChat
 This contains source codes of the AI logic to make users interact to their pdf files and get information without opening and reading them - just by asking in a chat. The implmentation has a blazor based UI with python implmentation of the AI logic to interact with Open AI's Chat GPT. 
 
-#PyPDF2 library for extracting PDFs with digital text
+# PyPDF2 library for extracting PDFs with digital text
 pip install PyPDF2
 
-#to chat using open-ai
+# to chat using open-ai
 pip install --upgrade openai
 
-#Create a .env file with the following name
+# Create a .env file with the following name
 OPENAI_API_KEY=Your_OpenAI_API_Key
 
-#for openAi embeddings
+# for openAi embeddings
 pip install tiktoken
 
-#LangChain is used here for linking large language models (LLMs) with Python and large PDFs
+# LangChain is used here for linking large language models (LLMs) with Python and large PDFs
 pip install langchain openai pypdf faiss-cpu
 
-#Create vector of the pdfs.
+# Create vector of the pdfs.
 Copy pdf to a folder
 Read them using pdf functoi
 Ingest them using npm
