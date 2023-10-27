@@ -25,3 +25,6 @@ Ingest them using npm
 https://www.nuget.org/packages/pythonnet
 Set envronment variable to your python dll e.g.
 PYTHONNET_PYDLL  = "C:\Python\python39.dll"
+
+
+All source codes are available in Github https://github.com/amteddy/AI2PdfChat
