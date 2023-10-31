@@ -27,13 +27,13 @@ Download and install .Net 6.0. Install it from .NET Framework Developer Packs at
 Microsoft Visual C++ 14.0 or greater is required. Get it with "Microsoft C++ Build Tools": https://visualstudio.microsoft.com/visual-cpp-build-tools/
 
 ## How to use AI2PdfChat
-- Create a .env file with the following name
+- Create a .env file with the following name\
      ```OPENAI_API_KEY=Your_OpenAI_API_Key ```
-- Set envronment variable to your python dll e.g.
+- Set envronment variable to your python dll e.g.\
      ```PYTHONNET_PYDLL  = "C:\Python\python39.dll" ```
 - Copy your pdf documents to data/sample_pdfs directory.
 - Run the tool (AI2PdfChat)
 - Start chatting to the pdf by inserting your questions. AI2PdfChat will search through the pdf and gives you the desired solution
 
 ## Sources
-* All source codes are available in Github https://github.com/amteddy/AI2PdfChat
+Source code of AI2PdfChat is available in Github https://github.com/amteddy/AI2PdfChat
