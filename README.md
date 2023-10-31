@@ -3,14 +3,14 @@ AI2PdfChat implments AI logic to make users interact to their pdf files and get 
 The implmentation has a blazor based UI with python implmentation of the AI logic to interact with OpenAi's Chat GPT. 
 
 ## Required libraries to install 
-* PyPDF2 library for extracting PDFs with digital text
+* PyPDF2 library for extracting PDFs with digital text\
  ```pip install PyPDF2 ```
 
 * LangChain
-LangChain is used here for linking large language models (LLMs) with Python and large PDFs
+LangChain is used here for linking large language models (LLMs) with Python and large PDFs\
  ```pip install langchain openai pypdf faiss-cpu ```
 
-* to chat using open-ai
+* to chat using open-ai\
  ```pip install --upgrade openai ```
 
 * FAISS (Facebook AI Similarity Search)
