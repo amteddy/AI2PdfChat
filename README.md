@@ -2,7 +2,7 @@
 AI2PdfChat implments AI logic to make users interact to their pdf files and get information without opening and reading them - just by asking in a chat. 
 The implmentation has a blazor based UI with python implmentation of the AI logic to interact with OpenAi's Chat GPT. 
 
-# Required libraries to install 
+## Required libraries to install 
 * PyPDF2 library for extracting PDFs with digital text
  ```pip install PyPDF2 ```
 
