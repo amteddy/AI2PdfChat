@@ -15,7 +15,7 @@
             </NavLink>
         </div>        
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="fetchdata">
+            <NavLink class="nav-link" href="fetchdata" @onclick="RefreshDocuments">
                 <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
             </NavLink>
         </div>
@@ -30,5 +30,9 @@
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+    }
+    private void RefreshDocuments()
+    {
+        var refreshstatus = AIManager.RefreshDocumentImport();
     }
 }

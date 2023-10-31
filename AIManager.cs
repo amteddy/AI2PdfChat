@@ -7,21 +7,36 @@ namespace AI2PdfChat
     {
         private bool isDisposed = false;
         private bool disposedValue;
-        private bool initialized = false;
+        private static bool initialized = false;
         private static IntPtr threadState;
+        private static string pdfLocation = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "sample_pdfs");
 
         public AIManager()
-        {
+        { 
             Runtime.PythonDLL = @"C:\ENG_APPS\Python\python39.dll";
             if (!PythonEngine.IsInitialized)
             {
                 PythonEngine.Initialize();
                 PythonEngine.BeginAllowThreads();
             }
-            Thread.Sleep(2000);
+            
+            var neededDirectories = new List<string>
+            {
+                "data",
+                "data\\vector_store",                
+                "data\\sample_pdfs"
+            };
 
-            var pdfPath = Path.Combine(Directory.GetCurrentDirectory(), "sample_pdfs");
-            ChatWithAI();
+            foreach (var item in neededDirectories)
+            {
+                var dir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, item);
+                if (!Directory.Exists(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                }
+            }            
+
+            RefreshDocumentImport();
         }
 
         public dynamic ChatWithAI(string message = "")
@@ -35,9 +50,7 @@ namespace AI2PdfChat
                     using dynamic py = Py.Import("AIInteractor");
                     if (!initialized)
                     {
-                        py.import_all_pdfs_in_directory("sample_pdfs");
-                        py.initialize_vector();
-                        initialized = true;
+                        RefreshDocumentImport();
                     }
                     else
                     {
@@ -56,6 +69,29 @@ namespace AI2PdfChat
                     return result;
                 }
             }
+        }
+
+        public static bool RefreshDocumentImport()
+        {
+            bool status = false;
+            using (Py.GIL())
+            {
+                try
+                {
+                    using dynamic py = Py.Import("AIInteractor");
+                    py.import_all_pdfs_in_directory(pdfLocation);
+                    py.initialize_vector();
+                    initialized = true;
+                    status = true;
+                }
+
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+            }
+
+            return status;
         }
 
         protected virtual void Dispose(bool disposing)
