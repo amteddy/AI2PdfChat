@@ -47,7 +47,7 @@ namespace AI2PdfChat
             {
                 try
                 {
-                    using dynamic py = Py.Import("AIInteractor");
+                    using dynamic py = Py.Import("AI");
                     if (!initialized)
                     {
                         RefreshDocumentImport();
@@ -55,8 +55,8 @@ namespace AI2PdfChat
                     else
                     {
                         if (!string.IsNullOrEmpty(message))
-                        {
-                            result = py.continue_chat(message);
+                        {                               
+                            result = py.chat(message);
                         }
                     }
 
@@ -78,9 +78,9 @@ namespace AI2PdfChat
             {
                 try
                 {
-                    using dynamic py = Py.Import("AIInteractor");
+                    using dynamic py = Py.Import("AI");
                     py.import_all_pdfs_in_directory(pdfLocation);
-                    py.initialize_vector();
+                    py.initialize();
                     initialized = true;
                     status = true;
                 }

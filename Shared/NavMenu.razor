@@ -24,7 +24,7 @@
 
 @code {
     private bool collapseNavMenu = true;
-
+    private string refreshMessage = string.Empty;
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
     private void ToggleNavMenu()
@@ -33,6 +33,15 @@
     }
     private void RefreshDocuments()
     {
+        refreshMessage = "Refreshing pdf import...";
         var refreshstatus = AIManager.RefreshDocumentImport();
+        if(refreshstatus)
+        {
+            refreshMessage = "Refreshing pdf import...";
+        }
+        else
+        {
+            refreshMessage = string.Empty;
+        }
     }
 }
