@@ -14,11 +14,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="LangChain" Version="0.10.3" />
     <PackageReference Include="pythonnet" Version="3.0.3" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="AIInteractor.py">
+    <None Update="AI.py">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

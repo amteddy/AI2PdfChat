@@ -50,6 +50,26 @@ textarea {
     overflow: auto;
     background: #f7f7f7
 }
+.chat-history {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 0 auto;
+}
+
+.user {
+    background-color: #f0f0f0;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    padding: 5px;
+    text-align: right;
+}
+
+.assistant {
+    background-color: #e1f5fe;
+    border-radius: 5px;
+    margin-bottom: 5px;
+    padding: 5px;
+}
 
 /* speech bubbles */
 .assistant-message {

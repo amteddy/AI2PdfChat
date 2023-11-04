@@ -13,8 +13,7 @@
 *.user
 *.userosscache
 *.sln.docstates
-/vector_store/
-/sample_pdfs/
+/data/
 
 # Ignore NuGet package directory
 packages/

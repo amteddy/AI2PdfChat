@@ -16,12 +16,15 @@
     }
 }
 
-<div>
-    @foreach (var message in chatHistory)
-    {
-        <div class="@GetMessageClass(message.Type)">@message.Message</div>
-    }
-</div>
+@if (chatHistory.Any())
+{
+    <div class="chat-history">
+        @foreach (var message in chatHistory)
+        {
+            <div class="@GetMessageClass(message.Type)" style="white-space:pre-line; font-family:inherit">@message.Message</div>
+        }
+    </div>
+}
 
 @code {
     private string GetMessageClass(ChatMessage.ChatMessageType type)

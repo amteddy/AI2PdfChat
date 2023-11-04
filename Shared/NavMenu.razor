@@ -15,7 +15,7 @@
             </NavLink>
         </div>        
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="fetchdata">
+            <NavLink class="nav-link" href="fetchdata" @onclick="RefreshDocuments">
                 <span class="oi oi-list-rich" aria-hidden="true"></span> Fetch data
             </NavLink>
         </div>
@@ -24,11 +24,24 @@
 
 @code {
     private bool collapseNavMenu = true;
-
+    private string refreshMessage = string.Empty;
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+    }
+    private void RefreshDocuments()
+    {
+        refreshMessage = "Refreshing pdf import...";
+        var refreshstatus = AIManager.RefreshDocumentImport();
+        if(refreshstatus)
+        {
+            refreshMessage = "Refreshing pdf import...";
+        }
+        else
+        {
+            refreshMessage = string.Empty;
+        }
     }
 }

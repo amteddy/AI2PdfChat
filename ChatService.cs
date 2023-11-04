@@ -5,7 +5,7 @@ namespace AI2PdfChat
 {
     public class ChatService
     {
-        private List<ChatMessage> chatHistory = new List<ChatMessage>();
+        private List<ChatMessage> chatHistory = new();
         public event Action OnMessageSent; //event to notify subscribers when new message is sent
         private readonly AIManager aiManager;
 
