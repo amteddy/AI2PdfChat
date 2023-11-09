@@ -1,0 +1,89 @@
+﻿@page "/"
+@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager Navigation
+@implements IAsyncDisposable
+
+@code
+{
+    private HubConnection? hubConnection;
+    private string? userName;
+    private string? messageInput;
+    private List<ChatMessage> chatHistory = new();
+    private string currentTime;
+
+    /* Random User Id to identify each connected user */
+    string RandomUserName()
+    {
+        var longDate = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        var time = new Random().Next(1, 100);
+        return "Id_" + long.Parse($"{longDate}{time}").ToString();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        currentTime = DateTime.Now.ToString();
+        userName = RandomUserName();
+        hubConnection = new HubConnectionBuilder().WithUrl(Navigation.ToAbsoluteUri("/chathub"),
+        options => options.AccessTokenProvider = () =>
+        Task.FromResult(userName)).Build();
+
+        /* Receieve Message from assistant*/
+        hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
+        {
+            chatHistory.Add(new ChatMessage(message, ChatMessage.ChatMessageType.Assistant));
+            StateHasChanged();
+        });
+
+        await hubConnection.StartAsync();
+    }
+
+    public bool IsConnected => hubConnection?.State == HubConnectionState.Connected;
+
+    /* Dispose hubConnection */
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.DisposeAsync();
+        }
+    }
+
+    /* Send Message to Assistant*/
+    public async Task SendMessage()
+    {
+        if (hubConnection is not null)
+        {
+            chatHistory.Add(new ChatMessage(messageInput, ChatMessage.ChatMessageType.User));
+            await hubConnection.SendAsync("SendMessage", userName, messageInput);
+            messageInput = string.Empty;
+        }
+    }
+}
+
+<PageTitle>Index</PageTitle>
+
+<h2>Welcome to AIChat</h2>
+<p role="status">User: @userName, Time: @currentTime</p>
+
+
+@if (chatHistory.Any())
+{
+    <div class="chat-history">
+        @foreach (var message in chatHistory)
+        {
+            <div class="@GetMessageClass(message.Type)" style="white-space:pre-line; font-family:inherit">@message.Message</div>
+        }
+    </div>
+}
+
+<div>
+    <textarea @bind="messageInput"></textarea>
+    <button class="btn btn-primary" @onclick="SendMessage" disabled="@(!IsConnected || string.IsNullOrEmpty(messageInput))">Send</button>
+</div>
+
+@code {
+    private string GetMessageClass(ChatMessage.ChatMessageType type)
+    {
+        return type == ChatMessage.ChatMessageType.User ? "user-message" : "assistant-message";
+    }
+}

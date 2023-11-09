@@ -5,6 +5,12 @@
 # Ignore build output
 /bin/
 /obj/
+Shared/bin/
+Shared/obj/
+Client/bin/
+Client/obj/
+Server/bin/
+Server/obj/
 /wwwroot/bin/
 /wwwroot/obj/
 
