@@ -1,5 +1,5 @@
-# AI2PdfChat
-AI2PdfChat implments AI logic to make users interact to their pdf files and get information without opening and reading them - just by asking in a chat. 
+# ChatTheDoc
+ChatTheDoc implments AI logic to make users interact to their pdf files and get information without opening and reading them - just by asking in a chat. 
 The implmentation has a blazor based UI with python implmentation of the AI logic to interact with OpenAi's Chat GPT. 
 
 ## Required libraries to install 
@@ -7,22 +7,22 @@ The implmentation has a blazor based UI with python implmentation of the AI logi
 Install python 3.11.5 from https://www.python.org/downloads/
 
 * Dependencies
-Install langchain and dependencies, openai, pydef, faiss-cpu and tiktoken
-  ```pip install langchain```
-  ```pip install  openai ```
-  ```pip install pypdf ```
-  ```pip install faiss-cpu ```
-  ```pip install tiktoken ```
-
-* FAISS - Facebook AI Similarity Search
-   FAISS is used to search for embeddings of multimedia documents that are similar to each other. You have installed it is in brevious command with langchain
-   More info in https://ai.meta.com/tools/faiss/
+Install langchain and dependencies, 
+``` pip install langchain openai pypdf chromadb tiktoken```
 
 * .NET Install 
-   Download and install .Net 6.0. Install it from .NET Framework Developer Packs at https://aka.ms/msbuild/developerpacks
+	Download and install .Net 7.0.
+	- Install Runtime from https://dotnet.microsoft.com/en-us/download/dotnet/7.0/runtime?cid=getdotnetcore&os=windows&arch=x64
+	- Install SDK https://download.visualstudio.microsoft.com/download/pr/a099e4b6-a6a8-4d34-bf95-b00739d35bb7/cdad50779717ba0e56caf89a3ba29ab1/dotnet-sdk-7.0.403-win-x64.exe
+	- Install ASP.NET Core Hosting, if you host your site in IIS
+	https://download.visualstudio.microsoft.com/download/pr/215095b0-dc0a-4e79-8815-3f72af83d054/3e7b7f99dffe2393a2210472c8c126a8/dotnet-hosting-7.0.13-win.exe
 
-* install Microsoft Visual C++
-Microsoft Visual C++ 14.0 or greater is required. Get it with "Microsoft C++ Build Tools": https://visualstudio.microsoft.com/visual-cpp-build-tools/
+* Install Microsoft Visual C++ Microsoft Visual C++ 14.0 or greater is required. Get it with "Microsoft C++ Build Tools": https://visualstudio.microsoft.com/visual-cpp-build-tools/
+
+- Select: Workloads → Desktop development with C++
+- Select these Individual Components:
+   - Windows 10 SDK
+   - C++ x64/x86 build tools
 
 ## Usage
 - Create a .env file with the following name\
@@ -30,8 +30,8 @@ Microsoft Visual C++ 14.0 or greater is required. Get it with "Microsoft C++ Bui
 - Set envronment variable to your python dll e.g.\
      ```PYTHONNET_PYDLL  = "C:\Python\python39.dll" ```
 - Copy your pdf documents to data/sample_pdfs directory.
-- Run the tool (AI2PdfChat)
-- Start chatting to the pdf by inserting your questions. AI2PdfChat will search through the pdf and gives you the desired solution
+- Run the tool (ChatTheDoc)
+- Start chatting to the pdf by inserting your questions. ChatTheDoc will search through the pdf and gives you the desired solution
 
 # Deployment
 Deploying a Blazor project to another machine involves a series of steps. I'll guide you through the process step by step, including cleaning up unnecessary files.
@@ -99,4 +99,4 @@ Deploying a Blazor project to another machine involves a series of steps. I'll g
 Remember that these steps are a general guideline. Depending on your specific environment, you might encounter variations or additional considerations. Always refer to the documentation of the specific tools or platforms you're using for detailed instructions. 
 
 ## Sources
-Source code of AI2PdfChat is available in Github https://github.com/teddyyayo/AI2PdfChat
+Source code of ChatTheDoc is available in Github https://github.com/teddyyayo/AI2PdfChat

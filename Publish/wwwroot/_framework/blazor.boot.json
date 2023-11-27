@@ -2,12 +2,12 @@
   "cacheBootResources": true,
   "config": [ ],
   "debugBuild": false,
-  "entryAssembly": "AI2PdfChat.Client",
+  "entryAssembly": "ChatTheDoc.Client",
   "icuDataMode": 0,
   "linkerEnabled": true,
   "resources": {
     "assembly": {
-      "AI2PdfChat.Client.dll": "sha256-BHPNL5EluynFTIcgargz63BMRH25d8LfwVLdtcrfk\/s=",
+      "ChatTheDoc.Client.dll": "sha256-D\/X908s0OoJnh6dO+QfTx3XK4berpnAP8dWvaWmPKJs=",
       "Microsoft.AspNetCore.Components.dll": "sha256-\/s8dzl2e4dycqxz8ALf4i+71WuWiNqeGBr0QbmbAeDw=",
       "Microsoft.AspNetCore.Components.Web.dll": "sha256-r0YBuWGUlaHUh2Z23twt81FC7qrTbOMZKoaD\/dgspW4=",
       "Microsoft.AspNetCore.Components.WebAssembly.dll": "sha256-iRsy1IrcBTdgTX1Vm0QTPuh8gXZnPIX6EC0gr5EOIjs=",

@@ -35,6 +35,7 @@
         });
 
         await hubConnection.StartAsync();
+        
     }
 
     public bool IsConnected => hubConnection?.State == HubConnectionState.Connected;
@@ -60,11 +61,10 @@
     }
 }
 
-<PageTitle>Index</PageTitle>
+<PageTitle>ChatTheDoc</PageTitle>
 
-<h2>Welcome to AIChat</h2>
-<p role="status">User: @userName, Time: @currentTime</p>
-
+<h3>Welcome to ChatTheDoc</h3>
+<p role="status">User: @userName. Time: @currentTime State: <b>@(IsConnected ? "Connected!" : "Disconnected!")</b></p>
 
 @if (chatHistory.Any())
 {

@@ -1,4 +1,4 @@
-﻿namespace AIChat.Client
+﻿namespace ChatTheDoc.Client
 {
     public class ChatMessage
     {
