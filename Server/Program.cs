@@ -12,6 +12,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
 builder.Services.AddSingleton<AiService>(); //Add it as scopped class to instantiate for every user. Use singlton if needed to be same for all users
+builder.Services.AddSingleton<ChatHub>(); // Add ChatHub as singlton to make hubconnection be same throught the chats
 
 //Add SignalR and Response Compression Middleware services
 builder.Services.AddSignalR();

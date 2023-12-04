@@ -5,41 +5,67 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 using Serilog;
 using Serilog.Events;
 using System.Diagnostics;
+using System.Security.Cryptography.X509Certificates;
 
 namespace ChatTheDoc.Server.AIService
 {
     public class StatusUpdateEventArgs : EventArgs
     {
         public object Data { get; }
-        public StatusUpdateEventArgs(object data)
+        public object User { get; }
+        public StatusUpdateEventArgs(object user, object data)
         {
             Data = data;
+            User = user;
         }
     }
-    
+
     public class AiService : IDisposable
     {
         private bool isDisposed = false;
         private static bool initialized = false;
         private dynamic threadState;
-        private static string pdfLocation = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "sample_pdfs");
+        private static string sample_pdfs_directory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "sample_pdfs");
+        private static string pdfLocation = sample_pdfs_directory; 
         public string logFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "logs", "log.txt");
+        private readonly Dictionary<string, EventHandler<StatusUpdateEventArgs>> eventHandlers = new();
 
-
-        //Test Use
-        public event EventHandler<StatusUpdateEventArgs> StatusUpdate;
+        //Define event based on the delegate
 
         public AiService()
         {
             Log.Logger = new LoggerConfiguration().WriteTo.File(logFile, rollingInterval: RollingInterval.Day, shared: true).CreateLogger();
             Initialize();
-            RefreshDocumentImport();           
+            RefreshDocumentImport();
         }
 
-        private void OnStatusUpdate(dynamic statusUpdateEventArgs)
+        public void SubscribeUser(string userId, EventHandler<StatusUpdateEventArgs> handler)
         {
-            Log.Logger.Information("Status Update from Python " + statusUpdateEventArgs);
-            StatusUpdate?.Invoke(this, new StatusUpdateEventArgs(statusUpdateEventArgs));
+            eventHandlers[userId] = handler;
+            Log.Logger.Information("Subscribe: user " + userId);           
+        }
+
+        public void UnSubscribeUser(string userId)
+        {
+            if (eventHandlers.TryGetValue(userId, out var handler))
+            {
+                eventHandlers.Remove(userId);
+                Log.Logger.Information("UnSubscribe: user " + userId);
+            }
+        }
+
+        //Method to rasise status update event
+        private void OnStatusUpdate(dynamic statusData)
+        {
+
+            using (Py.GIL())
+            {
+                string data = statusData["data"];
+                string user = statusData["user"];
+                Log.Logger.Information("Status Update from Python " + data);
+                var handler = eventHandlers[user];
+                handler?.Invoke(this, new StatusUpdateEventArgs(user, data));
+            }
         }
 
         /* 
@@ -87,13 +113,12 @@ namespace ChatTheDoc.Server.AIService
 
                 }
             }
-
         }
 
         /* 
          * Chat with AI via pythonnet
          */
-        public dynamic ChatWithAI(string message = "")
+        public dynamic ChatWithAI(string user, string message = "", string topic="")
         {
             dynamic result = string.Empty;
 
@@ -101,24 +126,25 @@ namespace ChatTheDoc.Server.AIService
             {
                 using (Py.GIL())
                 {
-                    using dynamic py = Py.Import("AI");
-                    dynamic aiClassObject = py.AiClass;
+                    dynamic py = Py.Import("__main__");
+                    using dynamic myModule = Py.Import("AI");
+                    dynamic aiClassObject = myModule.AiClass();
 
                     if (!initialized)
                     {
                         Log.Logger.Information("Vector store not initialized. Initializing from vector file...!");
-                        aiClassObject.load_vector_store_from_existing(aiClassObject);
+                        aiClassObject.load_vector_store_from_existing(topic);
                         initialized = true;
                     }
 
                     if (!string.IsNullOrEmpty(message))
                     {
-                        aiClassObject.set_status_update_event(aiClassObject, new Action<dynamic>(OnStatusUpdate));                       
-                        result = aiClassObject.chat(aiClassObject, message);
+                        aiClassObject.set_status_update_event(user, new Action<dynamic>(OnStatusUpdate));
+                        result = aiClassObject.chat(user, message, topic);
                     }
-
-                    return result;
                 }
+
+                return result;
             }
             catch (Exception ex)
             {
@@ -139,10 +165,11 @@ namespace ChatTheDoc.Server.AIService
                 using (Py.GIL())
                 {
                     using dynamic py = Py.Import("AI");
-                    dynamic aiClassObject = py.AiClass;
+                    dynamic aiClassObject = py.AiClass();
                     var importProperties = new PdfProperties
                     {
                         FileName = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "data", "import.xml"),
+                        Topics = new List<string>()
                     };
 
                     XmlSerializer serializer = new(typeof(PdfProperties));
@@ -154,14 +181,20 @@ namespace ChatTheDoc.Server.AIService
                         reader.Close();
                     }
 
-                    if ((importProperties != null && importProperties.UpdateRequired) || !File.Exists(importProperties.FileName))
+                    if ((importProperties != null && importProperties.UpdateRequired) || !File.Exists(importProperties?.FileName))
                     {
                         Log.Logger.Information("Starting document import...!");
-                        aiClassObject.import_all_pdfs_in_directory(aiClassObject, pdfLocation);
-                        aiClassObject.initialize(aiClassObject);
-                        initialized = true;
-                        status = true;
+                        var directroies = Directory.GetDirectories(sample_pdfs_directory);                       
+                        foreach (string dir in directroies)
+                        {
+                            DirectoryInfo dirInfo = new DirectoryInfo(dir);
+                            aiClassObject.import_all_pdfs_in_directory(dirInfo.FullName);
+                            aiClassObject.initialize(dirInfo.Name);
+                            importProperties.Topics.Add(dirInfo.Name);
+                            initialized = true;                            
+                        }
 
+                        status = true;
                         importProperties.LastImportDate = DateTime.Now;
                         importProperties.UpdateRequired = false;
 
@@ -177,7 +210,22 @@ namespace ChatTheDoc.Server.AIService
                 Log.Logger.Error(ex.ToString());
             }
             return status;
-        }       
+        }
+
+        public List<string> SetPreferedTopicCategories() 
+        {
+            var directroies = Directory.GetDirectories(sample_pdfs_directory);
+            var directoryList = new List<string>();
+
+            foreach(string dir in directroies)
+            {
+                DirectoryInfo dirInfo = new DirectoryInfo(dir);
+                directoryList.Add(dirInfo.Name);
+            }
+
+            directoryList.Add("All");
+            return directoryList;
+        }
 
         protected virtual void Dispose(bool disposing)
         {

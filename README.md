@@ -29,9 +29,11 @@ Install langchain and dependencies,
      ```OPENAI_API_KEY=Your_OpenAI_API_Key ```
 - Set envronment variable to your python dll e.g.\
      ```PYTHONNET_PYDLL  = "C:\Python\python39.dll" ```
-- Copy your pdf documents to data/sample_pdfs directory.
-- Run the tool (ChatTheDoc)
-- Start chatting to the pdf by inserting your questions. ChatTheDoc will search through the pdf and gives you the desired solution
+- Copy your pdf documents to data/sample_pdfs/<your-own-directory-name> directory. 
+- Run the tool (ChatTheDoc.Server.exe)
+- Start chatting to the pdf by inserting your questions. ChatTheDoc will search through the pdf and gives you the desired solution. You can have as many directories as you want. 
+It is adviced to have different directories for different manuals to be placed so that your search can be done to a specific directory at a time.
+- To try to chat, onnect to it via browser with address http://localhost:5000/ 
 
 # Deployment
 Deploying a Blazor project to another machine involves a series of steps. I'll guide you through the process step by step, including cleaning up unnecessary files.

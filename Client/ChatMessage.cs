@@ -1,9 +1,10 @@
-﻿namespace ChatTheDoc.Client
+﻿using System.Reflection.Metadata;
+
+namespace ChatTheDoc.Client
 {
     public class ChatMessage
     {
         public string Message { get; set; }
-        public string Content { get; set; }
 
         public ChatMessageType Type { get; set; }
 
@@ -17,6 +18,15 @@
         {
             User,
             Assistant
+        }
+
+        public enum PreferedTopic
+        {
+            Basic,
+            Scil,
+            Communication,
+            Supportline,
+            Mixed
         }
     }
 }

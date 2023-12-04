@@ -8,34 +8,51 @@
     private HubConnection? hubConnection;
     private string? userName;
     private string? messageInput;
-    private List<ChatMessage> chatHistory = new();
-    private string currentTime;
+    HashSet<User> userList = new();
 
-    /* Random User Id to identify each connected user */
-    string RandomUserName()
-    {
-        var longDate = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-        var time = new Random().Next(1, 100);
-        return "Id_" + long.Parse($"{longDate}{time}").ToString();
-    }
+    private string? currentTime;
+    private string? selectedTopic;
+    private List<string> topicList = new();
 
     protected override async Task OnInitializedAsync()
     {
         currentTime = DateTime.Now.ToString();
-        userName = RandomUserName();
+        userName = GetRandomUserName();
         hubConnection = new HubConnectionBuilder().WithUrl(Navigation.ToAbsoluteUri("/chathub"),
-        options => options.AccessTokenProvider = () =>
-        Task.FromResult(userName)).Build();
+        options => options.AccessTokenProvider = () => Task.FromResult(userName)).Build();
+
 
         /* Receieve Message from assistant*/
-        hubConnection.On<string, string>("ReceiveMessage", (user, message) =>
+        hubConnection.On<string, bool>("ReceiveMessage", (userId, message) =>
         {
-            chatHistory.Add(new ChatMessage(message, ChatMessage.ChatMessageType.Assistant));
+            var user = userList.FirstOrDefault(user => user.UserId == userId);
+            user?.AddMessage(user.StatusMessage, ChatMessage.ChatMessageType.Assistant);
+
+            StateHasChanged();
+        });
+
+        /* Update Message from assistant*/
+        hubConnection.On<string, string>("UpdateMessage", (userId, message) =>
+        {
+            var user = userList.FirstOrDefault(user => user.UserId == userId);
+            user?.UpdateStatus(message);
+
+            StateHasChanged();
+        });
+
+        /* SetPreferedTopicCategories*/
+        hubConnection.On<string, List<string>>("SetPreferedTopicCategories", (userId, preferedTopicList) =>
+        {
+            topicList = preferedTopicList.Count > 0 ? preferedTopicList : new List<string> { "None" };
+            selectedTopic = topicList.FirstOrDefault();
+            var user = userList.FirstOrDefault(user => user.UserId == userName);
+            user.PreferedTopic = selectedTopic;
             StateHasChanged();
         });
 
         await hubConnection.StartAsync();
-        
+        await hubConnection.SendAsync("SetPreferedTopicCategories", userName);
+        userList.Add(new User(userName, selectedTopic));
     }
 
     public bool IsConnected => hubConnection?.State == HubConnectionState.Connected;
@@ -49,29 +66,68 @@
         }
     }
 
+    /* Random User Id to identify each connected user */
+    string GetRandomUserName()
+    {
+        var longDate = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        var time = new Random().Next(1, 100);
+        return "Id_" + long.Parse($"{longDate}{time}").ToString();
+    }
+
     /* Send Message to Assistant*/
     public async Task SendMessage()
     {
         if (hubConnection is not null)
         {
-            chatHistory.Add(new ChatMessage(messageInput, ChatMessage.ChatMessageType.User));
-            await hubConnection.SendAsync("SendMessage", userName, messageInput);
+            var user = userList.FirstOrDefault(user => user.UserId == userName);
+            user?.AddMessage(messageInput, ChatMessage.ChatMessageType.User);
+
+            await hubConnection.SendAsync("SendMessage", userName, messageInput, user?.PreferedTopic);
             messageInput = string.Empty;
+        }
+    }
+
+    void SetPreferedTopic(ChangeEventArgs e)
+    {
+        if (e.Value is not null)
+        {
+            selectedTopic = (string)e.Value;
+            var user = userList.FirstOrDefault(user => user.UserId == userName);
+            user.PreferedTopic = selectedTopic;
         }
     }
 }
 
 <PageTitle>ChatTheDoc</PageTitle>
 
-<h3>Welcome to ChatTheDoc</h3>
-<p role="status">User: @userName. Time: @currentTime State: <b>@(IsConnected ? "Connected!" : "Disconnected!")</b></p>
+<h3>Welcome</h3>
+<div>
+    <p role="status">User: @userName. Time: @currentTime State: <b>@(IsConnected ? "Connected!" : "Disconnected!")</b></p>
 
-@if (chatHistory.Any())
+    <label for="topicSelection">Chat Topic</label>
+    <select id="topicSelection" @onchange="SetPreferedTopic" bind="selectedTopic" class="dropdown-content">
+        @foreach (var item in topicList)
+        {
+            <option value="@item" onclick="SetPreferedTopic">@item</option>
+        }
+    </select>
+</div>
+@{
+    var user = userList.FirstOrDefault(user => user.UserId == userName);
+    var userHistory = user?.GetUserChatHistory();
+}
+
+@if (user != null && userHistory?.Count > 0)
 {
     <div class="chat-history">
-        @foreach (var message in chatHistory)
+        @foreach (var message in userHistory)
         {
             <div class="@GetMessageClass(message.Type)" style="white-space:pre-line; font-family:inherit">@message.Message</div>
+        }
+
+        @if (!string.IsNullOrEmpty(user?.StatusMessage))
+        {
+            <div class="@GetMessageClass(ChatMessage.ChatMessageType.Assistant)" style="white-space:pre-line; font-family:inherit">@user.StatusMessage</div>
         }
     </div>
 }
