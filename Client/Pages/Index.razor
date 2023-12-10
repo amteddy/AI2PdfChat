@@ -1,6 +1,8 @@
 ﻿@page "/"
 @using Microsoft.AspNetCore.SignalR.Client
 @inject NavigationManager Navigation
+
+
 @implements IAsyncDisposable
 
 @code
@@ -20,7 +22,6 @@
         userName = GetRandomUserName();
         hubConnection = new HubConnectionBuilder().WithUrl(Navigation.ToAbsoluteUri("/chathub"),
         options => options.AccessTokenProvider = () => Task.FromResult(userName)).Build();
-
 
         /* Receieve Message from assistant*/
         hubConnection.On<string, bool>("ReceiveMessage", (userId, message) =>
@@ -105,7 +106,7 @@
     <p role="status">User: @userName. Time: @currentTime State: <b>@(IsConnected ? "Connected!" : "Disconnected!")</b></p>
 
     <label for="topicSelection">Chat Topic</label>
-    <select id="topicSelection" @onchange="SetPreferedTopic" bind="selectedTopic" class="dropdown-content">
+    <select id="topicSelection" @onchange="SetPreferedTopic" bind="selectedTopic">
         @foreach (var item in topicList)
         {
             <option value="@item" onclick="SetPreferedTopic">@item</option>
@@ -132,14 +133,21 @@
     </div>
 }
 
-<div>
-    <textarea @bind="messageInput"></textarea>
-    <button class="btn btn-primary" @onclick="SendMessage" disabled="@(!IsConnected || string.IsNullOrEmpty(messageInput))">Send</button>
+<div style="display: flex; flex-direction: row ">
+    <textarea @bind="messageInput" @oninput="HandleTextInput" @onkeydown="HandleEnterKeyPress" style="width: 95%;"></textarea>
+    <button class="btn btn-primary" @onclick="SendMessage" disabled="@(!IsConnected || string.IsNullOrWhiteSpace(messageInput))" style="height: inherit;">Send</button>
 </div>
 
 @code {
-    private string GetMessageClass(ChatMessage.ChatMessageType type)
+    private string GetMessageClass(ChatMessage.ChatMessageType type) => type == ChatMessage.ChatMessageType.User ? "user-message" : "assistant-message";
+
+    private void HandleTextInput(ChangeEventArgs e) => messageInput = e.Value.ToString();
+
+    private async Task HandleEnterKeyPress(KeyboardEventArgs e)
     {
-        return type == ChatMessage.ChatMessageType.User ? "user-message" : "assistant-message";
+        if (e.Key == "Enter" && IsConnected && !string.IsNullOrWhiteSpace(messageInput))
+        {
+            await SendMessage();
+        }
     }
 }

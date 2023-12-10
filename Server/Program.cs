@@ -28,6 +28,13 @@ builder.Services.AddHsts(options =>
     options.MaxAge = TimeSpan.FromHours(2);
 });
 
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(60);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddHttpsRedirection(options =>
 {
@@ -43,7 +50,6 @@ builder.Services.Configure<KestrelServerOptions>(options =>
 var app = builder.Build();
 app.UseResponseCompression(); //Use Response Compression Middleware 
 
-
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -57,7 +63,7 @@ else
 }
 
 //app.UseHttpsRedirection();
-
+app.UseSession();
 app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 app.UseAuthorization();

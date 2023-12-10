@@ -1,20 +1,18 @@
 from importlib.abc import FileLoader
 import os
-import time, sys
+import sys
 from tracemalloc import start
-# LangChain language model integration to link large language models (LLMs) 
+
 from langchain.chat_models import ChatOpenAI 
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.document_loaders import PyPDFLoader
 from langchain.chains import ConversationalRetrievalChain 
 from langchain.memory import ConversationBufferMemory
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
-from langchain.vectorstores import FAISS # Facebook AI Similarity Search to search for embeddings in documents that are similar to each other
-from langchain.embeddings.openai import OpenAIEmbeddings
-from langchain.text_splitter import CharacterTextSplitter
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import Chroma
-from datetime import date, datetime
-from langchain.memory import ConversationBufferMemory
+from datetime import datetime
+from langchain.document_loaders.merge import MergedDataLoader
 
 class StreamingStdOutCallbackHandler(StreamingStdOutCallbackHandler):
     def __init__(self, callback):
@@ -33,9 +31,8 @@ class StreamingStdOutCallbackHandler(StreamingStdOutCallbackHandler):
 
 class AiClass:
     open_ai_key = os.environ["OPENAI_API_KEY"]
-    pdf_pages = []
     chat_history = []
-    vector_index = []
+    vector_index = {}
     data_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "data")    
     sample_pdfs_dir = os.path.join(data_dir, "sample_pdfs")
 
@@ -59,47 +56,50 @@ class AiClass:
     #***********************************************************************************
     # Read pdf
     #***********************************************************************************
-    def import_pdf(self, pdf_path):    
-        print("Importing document: " + os.path.basename(pdf_path))
+    def import_pdf(self, pdf_path):            
         pdf_reader = PyPDFLoader(pdf_path)
-        self.pdf_pages = pdf_reader.load_and_split()
+        print("Imported document: " + os.path.basename(pdf_path))
+        return pdf_reader
     
     #***********************************************************************************
     # Read multiple pdf files in directory
     #***********************************************************************************
     def import_all_pdfs_in_directory(self, dir):
         file_count = 0
-        if os.path.isdir(dir):        
-            for f in os.listdir(dir):
-                file = os.path.join(dir, f)
-                if os.path.isfile(file) and file.endswith(".pdf"):
-                    self.import_pdf(file)
-                    file_count += 1
-            print("_______________________________________________")
+        pdf_pages = []
+        topic = os.path.basename(dir)  
+        if os.path.isdir(dir):
+            if not os.listdir(dir): 
+                print("No documents found in: " + dir)
+            else:         
+                for f in os.listdir(dir):
+                    file = os.path.join(dir, f)                    
+                    if os.path.isfile(file) and file.endswith(".pdf"):
+                        pdf_pages.append(self.import_pdf(file))
+                        file_count += 1
             print("Imported files: " + str(file_count))
-        else:
-            return "No files or directory found!"
 
-    #***********************************************************************************
-    # Perform chunking and split the text using LangChain text splitters.
-    #***********************************************************************************
-    def prepare_imported_data_for_chat(self, topic):
-        dir_ = os.path.join(self.sample_pdfs_dir, topic)
-        if not os.listdir(dir_): 
-            print("No documents found in: " + dir_) 
+            if(file_count > 0): 
+                ''' Perform chunking and split the text using LangChain recursive text splitters. '''       
+                print("Preparing imported data and creating vectore store...")            
+                text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
+                combined_pdfs = MergedDataLoader(loaders=pdf_pages)
+                
+                documents = text_splitter.split_documents(combined_pdfs.load())
+                self.vector_index[topic] = Chroma.from_documents(documents, OpenAIEmbeddings(), persist_directory=os.path.join(self.data_dir, "vector_store", topic))
+                print("Chunking and spliting done for topic: ", topic) 
+                print("_______________________________________________")
+            
+            else:
+                print("No files to be imported!")
         else:
-            print("Preparing imported data and creating vectore store...")            
-            text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
-            documents = text_splitter.split_documents(self.pdf_pages)
-            self.vector_index = Chroma.from_documents(documents, OpenAIEmbeddings(), persist_directory=os.path.join(self.data_dir, "vector_store", topic))
-            print("Preparation done.")
-        return self.vector_index
+            return "No files or directory found!"  
 
     #***********************************************************************************
     # Loads vector from file
     #***********************************************************************************
     def load_vector_store_from_existing(self, topic):
-        self.vector_index = Chroma(persist_directory=os.path.join(self.data_dir, "vector_store", topic), embedding_function=OpenAIEmbeddings())    
+        self.vector_index[topic] = Chroma(persist_directory=os.path.join(self.data_dir, "vector_store", topic), embedding_function=OpenAIEmbeddings())    
         print("Loading vector from file done.")
     
     #***********************************************************************************
@@ -109,12 +109,12 @@ class AiClass:
         start_time = datetime.now()
         print(start_time.strftime("%H:%M:%S.%f"), "   Question asked: ",  question)    
         
-        if(self.vector_index == [] or not topic == ""):
+        if(not self.vector_index.get(topic)):
             self.load_vector_store_from_existing(topic)
-        if(self.vector_index != []):                             
-            llm =  ChatOpenAI(streaming=True, callbacks=[self.user_callbacks[user]], temperature=0.8)
+        if(self.vector_index.get(topic)):                             
+            llm =  ChatOpenAI(streaming=True, callbacks=[self.user_callbacks[user]], temperature=0.7)
             memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True) 
-            retrieval_conv_interface = ConversationalRetrievalChain.from_llm(llm, retriever=self.vector_index.as_retriever(lambda_val=0.025, k=5, filter=None) , memory=memory)                      
+            retrieval_conv_interface = ConversationalRetrievalChain.from_llm(llm, retriever=self.vector_index[topic].as_retriever(lambda_val=0.025, k=5, filter=None) , memory=memory)                      
             original_std_out = sys.stdout            
             sys.stdout = self.user_callbacks[user]
             self.user_callbacks[user].activate_callback(active=True)
@@ -129,36 +129,26 @@ class AiClass:
             diff = end_time - start_time
             print("Answered in TIME:  ", diff)          
             return result["answer"]
-
-    #***********************************************************************************
-    # get chat history
-    #***********************************************************************************
-    def get_chat_history(self):	
-        return self.chat_history
-
+    
     #***********************************************************************************
     # Ask to chat
     #***********************************************************************************
-    def ask_to_continue(self):
+    def ask_to_continue(self, topic):
         print("\n_______________________________________________")
         user_input = input("Enter your Question to AI agent...\n")
-        result = self.chat(user_input)
-        self.ask_to_continue() #as user's choice to continue playing the game
-
-    #***********************************************************************************
-    # Init Vector
-    #***********************************************************************************
-    def initialize(self, topic):    
-        self.vector_index = self.prepare_imported_data_for_chat(topic)
+        #ai.user_callbacks["Demo User"] = StreamingStdOutCallbackHandler
+        self.chat("Demo User", user_input, topic)
+        self.ask_to_continue()
 
     ''' Example use cases below
     Note: import_all_pdfs_in_directory or import_pdfs need to be called atleast once  and initialize functions need to follow. 
     ask_to_continue funtion is needed only when you chat from this python directly.
     '''
-  
-""" ai = AiClass()
+
+'''
+ai = AiClass()
 dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "data")
-ai.import_all_pdfs_in_directory(os.path.join(dir, "sample_pdfs")) #not needed if it is once done, unless pdfs are updated
-ai.initialize()
-#ai.load_vector_store_from_existing()    
-ai.ask_to_continue() """
+#ai.import_all_pdfs_in_directory(os.path.join(dir, "sample_pdfs", "SCIL")) #not needed if it is once done, unless pdfs are updated
+#ai.load_vector_store_from_existing("SCIL")    
+ai.ask_to_continue("SCIL")
+'''

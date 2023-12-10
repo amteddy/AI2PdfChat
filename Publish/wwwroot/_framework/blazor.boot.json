@@ -7,9 +7,9 @@
   "linkerEnabled": true,
   "resources": {
     "assembly": {
-      "ChatTheDoc.Client.dll": "sha256-z0r4W\/XJXuNYAPwncQaSkYDH+1U49UJqQ7Vp3kdPdKM=",
-      "Microsoft.AspNetCore.Components.dll": "sha256-\/s8dzl2e4dycqxz8ALf4i+71WuWiNqeGBr0QbmbAeDw=",
-      "Microsoft.AspNetCore.Components.Web.dll": "sha256-r0YBuWGUlaHUh2Z23twt81FC7qrTbOMZKoaD\/dgspW4=",
+      "ChatTheDoc.Client.dll": "sha256-UhTcf9T\/GdiZ5gatKuurNGjjjOK\/ic7o+nxBbdTT8\/I=",
+      "Microsoft.AspNetCore.Components.dll": "sha256-AtA4v6NtvvY2lYeW8LE7M6GCk3j7IVCWZ7QLE\/ftQKc=",
+      "Microsoft.AspNetCore.Components.Web.dll": "sha256-DZrGUSOUHfpfpsfAuQx\/HhaZjXdLcjbfujgYnCzovGQ=",
       "Microsoft.AspNetCore.Components.WebAssembly.dll": "sha256-iRsy1IrcBTdgTX1Vm0QTPuh8gXZnPIX6EC0gr5EOIjs=",
       "Microsoft.AspNetCore.Connections.Abstractions.dll": "sha256-kTb5P4nwXaj1fULLkLM1aWZPGAAVC7jXg1\/wtqf+lqs=",
       "Microsoft.AspNetCore.Http.Connections.Client.dll": "sha256-WFK02JP5fjYsqZ7i\/cj8CjaQUbCRAC72jvjXolV+rJc=",

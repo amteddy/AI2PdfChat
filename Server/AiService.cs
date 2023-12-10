@@ -187,10 +187,9 @@ namespace ChatTheDoc.Server.AIService
                         var directroies = Directory.GetDirectories(sample_pdfs_directory);                       
                         foreach (string dir in directroies)
                         {
-                            DirectoryInfo dirInfo = new DirectoryInfo(dir);
+                            DirectoryInfo dirInfo = new(dir);
                             aiClassObject.import_all_pdfs_in_directory(dirInfo.FullName);
-                            aiClassObject.initialize(dirInfo.Name);
-                            importProperties.Topics.Add(dirInfo.Name);
+                            importProperties?.Topics.Add(dirInfo.Name);
                             initialized = true;                            
                         }
 
@@ -219,7 +218,7 @@ namespace ChatTheDoc.Server.AIService
 
             foreach(string dir in directroies)
             {
-                DirectoryInfo dirInfo = new DirectoryInfo(dir);
+                DirectoryInfo dirInfo = new(dir);
                 directoryList.Add(dirInfo.Name);
             }
 

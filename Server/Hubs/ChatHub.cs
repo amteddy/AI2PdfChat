@@ -21,14 +21,12 @@ namespace ChatTheDoc.Server.Hubs
 
         public override Task OnConnectedAsync()
         {
-            //ConnectedUsers.Add(Context.ConnectionId);            
             Log.Logger.Information($"User {Context.ConnectionId} connected!");
             return base.OnConnectedAsync();
         }
 
         public override Task OnDisconnectedAsync(Exception? exception)
         {
-            //ConnectedUsers.Remove(Context.ConnectionId);
             Log.Logger.Information($"User {Context.ConnectionId} disconnected!");
             if (exception != null)
             {
